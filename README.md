@@ -4,6 +4,8 @@
 
 L'objectif est d'étudier comment les mathématiques du programme scolaire (taux d'accroissement, dérivée $f'(x)$, vecteurs normaux $\vec{n}$, produit scalaire $\vec{u}\cdot\vec{n}$, pression dynamique de Bernoulli $q_\infty = \frac{1}{2}\rho v^2$ et calcul intégral par **sommes de Riemann**) s'appliquent directement au comportement aérodynamique d'une voiture de compétition ($C_x$, $C_z$, appui en kg, puissance consommée en chevaux).
 
+![AeroCars - Interface de la Soufflerie Virtuelle 2D](docs/AeroCars-Screenshot-palier1.png)
+
 ---
 
 ## ⚡ Fonctionnalités Clés (Version 1.0)
