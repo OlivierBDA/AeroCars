@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="fr" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AeroCars — Soufflerie Aérodynamique 2D (Spécialité Maths Terminale)</title>
+  
+  <!-- CDN TailwindCSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            'aero-navy': '#0b0f19',
+            'aero-panel': '#111827',
+            'aero-card': '#141c2e',
+            'aero-border': '#1f293d',
+            'racing-red': '#ef4444',
+            'aero-cyan': '#06b6d4',
+            'perf-green': '#10b981',
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- CDN KaTeX pour le rendu des formules LaTeX -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+
+  <!-- CDN Marked.js pour le rendu Markdown des explications Gemini -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+  <!-- Styles personnalisés -->
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body class="bg-[#0b0f19] text-gray-100 min-h-screen flex flex-col">
+
+  <!-- ==============================================================================
+       HEADER & SÉLECTEUR DES 3 PALIERS MATHÉMATIQUES
+       ============================================================================== -->
+  <header class="cockpit-panel border-b border-[#1f293d] px-4 py-3 sticky top-0 z-40">
+    <div class="max-w-[1920px] mx-auto flex flex-wrap items-center justify-between gap-4">
+      
+      <!-- Logo et Titre -->
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-red-600 via-cyan-500 to-blue-600 p-[2px] shadow-lg shadow-cyan-500/20">
+          <div class="w-full h-full bg-[#0b0f19] rounded-lg flex items-center justify-center">
+            <svg class="w-6 h-6 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+          </div>
+        </div>
+        <div>
+          <div class="flex items-center space-x-2">
+            <span class="text-xl font-black font-display tracking-wider text-white">AERO<span class="text-cyan-400">CARS</span></span>
+            <span class="text-[10px] uppercase font-bold tracking-widest px-2 py-0.5 rounded bg-cyan-950/80 text-cyan-400 border border-cyan-800/60">v1.0 • Soufflerie 2D</span>
+          </div>
+          <p class="text-xs text-gray-400 hidden sm:block">Laboratoire Aérodynamique & Mathématiques pour lycéens de Terminale</p>
+        </div>
+      </div>
+
+      <!-- Barre des 3 Paliers du Programme Scolaire -->
+      <nav class="flex items-center space-x-2 bg-[#090d15] p-1.5 rounded-xl border border-[#1f293d]">
+        <button id="tabTier1" class="tier-tab active px-3.5 py-1.5 rounded-lg text-xs font-semibold flex items-center space-x-2 border transition-all cursor-pointer">
+          <span class="w-2 h-2 rounded-full bg-cyan-400 shadow-sm shadow-cyan-400"></span>
+          <span>Palier 1 : Spé Maths (Dérivées & Intégrales)</span>
+          <span class="text-[10px] px-1.5 py-0.2 rounded bg-cyan-500/20 text-cyan-300 font-mono">ACTIF</span>
+        </button>
+
+        <button id="tabTier2" class="tier-tab px-3.5 py-1.5 rounded-lg text-xs font-semibold text-gray-400 hover:text-gray-200 border border-transparent hover:border-[#1f293d] flex items-center space-x-2 transition-all cursor-pointer">
+          <span class="w-2 h-2 rounded-full bg-purple-500/50"></span>
+          <span>Palier 2 : Maths Expertes (Joukowski)</span>
+          <span class="text-[9px] px-1.5 py-0.2 rounded bg-purple-900/50 text-purple-300 border border-purple-700/50">v2.0</span>
+        </button>
+
+        <button id="tabTier3" class="tier-tab px-3.5 py-1.5 rounded-lg text-xs font-semibold text-gray-400 hover:text-gray-200 border border-transparent hover:border-[#1f293d] flex items-center space-x-2 transition-all cursor-pointer">
+          <span class="w-2 h-2 rounded-full bg-amber-500/50"></span>
+          <span>Palier 3 : Équations Différentielles (Vmax)</span>
+          <span class="text-[9px] px-1.5 py-0.2 rounded bg-amber-900/50 text-amber-300 border border-amber-700/50">v2.0</span>
+        </button>
+      </nav>
+
+      <!-- Statut Télémétrie & Modèle IA -->
+      <div class="hidden lg:flex items-center space-x-3 text-xs font-mono">
+        <div class="flex items-center space-x-2 px-3 py-1.5 rounded-lg bg-[#111827] border border-[#1f293d]">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 live-indicator"></span>
+          <span class="text-gray-300">Soufflerie :</span>
+          <span class="text-emerald-400 font-semibold">60 FPS</span>
+        </div>
+        <div class="flex items-center space-x-2 px-3 py-1.5 rounded-lg bg-[#111827] border border-[#1f293d]">
+          <svg class="w-3.5 h-3.5 text-cyan-400" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M12 2a10 10 0 1010 10A10 10 0 0012 2zm1 14.93V17a1 1 0 01-2 0v-.07A7 7 0 015.07 11H5a1 1 0 010-2h.07A7 7 0 0111 5.07V5a1 1 0 012 0v.07A7 7 0 0118.93 11H19a1 1 0 010 2h-.07A7 7 0 0113 16.93z"/>
+          </svg>
+          <span class="text-gray-400">IA :</span>
+          <span id="header-model-badge" class="text-cyan-400 font-semibold">gemini-3.8-flash</span>
+        </div>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- ==============================================================================
+       ZONE PRINCIPALE EN 4 PARTIES (GRID RESPONSIVE)
+       ============================================================================== -->
+  <main class="flex-1 max-w-[1920px] w-full mx-auto p-3 lg:p-4 grid grid-cols-1 xl:grid-cols-12 gap-4">
+
+    <!-- ==========================================================================
+         COLONNE GAUCHE (XL: 3 COLONNES) : SÉLECTEUR & CONTRÔLES PHYSIQUES
+         ========================================================================== -->
+    <aside class="xl:col-span-3 flex flex-col space-y-4">
+      
+      <!-- Carte : Profils Aérodynamiques Prédéfinis -->
+      <section class="cockpit-panel rounded-xl p-4 border border-[#1f293d]">
+        <div class="flex items-center justify-between mb-3">
+          <h2 class="text-sm font-bold font-display uppercase tracking-wider text-gray-200 flex items-center space-x-2">
+            <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+            </svg>
+            <span>Élément de Course</span>
+          </h2>
+          <span class="text-[11px] font-mono text-cyan-400/90 bg-cyan-950/60 px-2 py-0.5 rounded border border-cyan-800/40">5 Préréglages</span>
+        </div>
+
+        <!-- Sélecteur Dropdown -->
+        <div class="mb-3">
+          <label for="profileSelect" class="block text-xs font-medium text-gray-400 mb-1">Choix du composant :</label>
+          <select id="profileSelect" class="w-full bg-[#0d1424] border border-[#1f293d] rounded-lg px-3 py-2 text-sm text-gray-100 font-medium focus:outline-none focus:border-cyan-500 transition-colors">
+            <!-- Rempli dynamiquement par JS -->
+          </select>
+        </div>
+
+        <!-- Carte d'inspiration sport auto & notion scolaire -->
+        <div id="profileDetailsCard" class="bg-[#0b101d] rounded-lg p-3 border border-[#1a233a] space-y-2">
+          <div class="flex items-center justify-between">
+            <span id="carInspirationBadge" class="text-xs font-semibold text-red-400 font-mono">Porsche 911 GT3 RS</span>
+            <span id="chordSpanBadge" class="text-[11px] text-gray-400 font-mono">L = 0.35m | b = 1.80m</span>
+          </div>
+          <p id="profileDescriptionText" class="text-xs text-gray-300 leading-relaxed">
+            Profil d'aile inversée asymétrique pour générer un fort appui arrière en virage.
+          </p>
+          <div class="pt-2 border-t border-[#1a233a]/80 flex items-start space-x-1.5">
+            <span class="text-xs text-amber-400">📚</span>
+            <span id="mathChapterBadge" class="text-[11px] text-amber-300 font-medium leading-tight">
+              Polynômes du 3e degré & Fonction racine carrée
+            </span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Carte : Paramètres de Soufflerie (Sliders) -->
+      <section class="cockpit-panel rounded-xl p-4 border border-[#1f293d] space-y-4">
+        <h2 class="text-sm font-bold font-display uppercase tracking-wider text-gray-200 flex items-center space-x-2">
+          <svg class="w-4 h-4 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+          </svg>
+          <span>Paramètres d'Écoulement</span>
+        </h2>
+
+        <!-- Slider 1 : Vitesse de l'air -->
+        <div class="space-y-1.5">
+          <div class="flex justify-between items-center text-xs">
+            <span class="text-gray-300 font-medium">Vitesse du vent ($v_\infty$)</span>
+            <span class="font-mono text-cyan-400 font-bold bg-[#0d1424] px-2 py-0.5 rounded border border-[#1f293d]">
+              <span id="speedVal">200</span> km/h <span class="text-gray-400 text-[10px]">(<span id="speedMsVal">55.6</span> m/s)</span>
+            </span>
+          </div>
+          <input id="speedSlider" type="range" min="50" max="350" step="5" value="200" class="w-full">
+          <div class="flex justify-between text-[10px] font-mono text-gray-400">
+            <span>50 km/h</span>
+            <span>200 km/h</span>
+            <span>350 km/h</span>
+          </div>
+        </div>
+
+        <!-- Slider 2 : Angle d'attaque -->
+        <div class="space-y-1.5">
+          <div class="flex justify-between items-center text-xs">
+            <span class="text-gray-300 font-medium">Angle d'attaque ($\alpha$)</span>
+            <span class="font-mono text-amber-400 font-bold bg-[#0d1424] px-2 py-0.5 rounded border border-[#1f293d]">
+              <span id="aoaVal">+8.0</span>° <span class="text-gray-400 text-[10px]">(<span id="aoaRadVal">+0.14</span> rad)</span>
+            </span>
+          </div>
+          <input id="aoaSlider" type="range" min="-5" max="25" step="0.5" value="8" class="w-full accent-red">
+          <div class="flex justify-between text-[10px] font-mono text-gray-400">
+            <span>-5° (Déportance)</span>
+            <span>0° (Neutre)</span>
+            <span>+25° (Max/Décrochage)</span>
+          </div>
+        </div>
+
+        <!-- Slider 3 : Discrétisation de Riemann N -->
+        <div class="space-y-1.5">
+          <div class="flex justify-between items-center text-xs">
+            <span class="text-gray-300 font-medium">Finesse d'intégration ($N$ segments)</span>
+            <span class="font-mono text-emerald-400 font-bold bg-[#0d1424] px-2 py-0.5 rounded border border-[#1f293d]">
+              $N = $ <span id="segmentsVal">60</span>
+            </span>
+          </div>
+          <input id="segmentsSlider" type="range" min="10" max="180" step="2" value="60" class="w-full">
+          <div class="flex justify-between text-[10px] font-mono text-gray-400">
+            <span>$N=10$ (Grossier)</span>
+            <span>$N=60$ (Équilibré)</span>
+            <span>$N=180$ (Précis)</span>
+          </div>
+          <p class="text-[10px] text-gray-400 italic">
+            Visualisez la convergence de la Somme de Riemann vers l'intégrale exacte en augmentant $N$ !
+          </p>
+        </div>
+
+        <!-- Options d'affichage Canvas -->
+        <div class="pt-3 border-t border-[#1f293d] space-y-2">
+          <span class="text-xs font-semibold text-gray-300 block">Superpositions Télémétrie :</span>
+          
+          <label class="flex items-center space-x-2 text-xs text-gray-300 cursor-pointer">
+            <input id="toggleForces" type="checkbox" checked class="rounded bg-[#0d1424] border-gray-700 text-cyan-500 focus:ring-0">
+            <span>Vecteurs de pression $\vec{dF}_i$ (<span class="text-red-400 font-mono">Rouge: surpression</span> / <span class="text-cyan-400 font-mono">Cyan: succion</span>)</span>
+          </label>
+
+          <label class="flex items-center space-x-2 text-xs text-gray-300 cursor-pointer">
+            <input id="toggleNormals" type="checkbox" class="rounded bg-[#0d1424] border-gray-700 text-cyan-500 focus:ring-0">
+            <span>Vecteurs normaux sortants $\vec{n}_i$</span>
+          </label>
+
+          <label class="flex items-center space-x-2 text-xs text-gray-300 cursor-pointer">
+            <input id="toggleStreamlines" type="checkbox" checked class="rounded bg-[#0d1424] border-gray-700 text-cyan-500 focus:ring-0">
+            <span>Lignes de flux d'air animées (Bernoulli)</span>
+          </label>
+        </div>
+
+        <!-- Bouton d'action IA (Gemini) -->
+        <div class="pt-2">
+          <button id="btnExplain" class="w-full py-3 px-4 rounded-xl font-bold font-display text-sm uppercase tracking-wider text-white bg-gradient-to-r from-red-600 via-rose-600 to-cyan-600 hover:from-red-500 hover:to-cyan-500 transition-all duration-300 shadow-lg shadow-red-600/20 hover:shadow-cyan-500/30 flex items-center justify-center space-x-2 border border-red-500/40">
+            <svg class="w-5 h-5 text-yellow-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+            <span>Analyser avec l'IA (Gemini)</span>
+          </button>
+        </div>
+      </section>
+
+    </aside>
+
+    <!-- ==========================================================================
+         ZONE CENTRALE (XL: 6 COLONNES) : CANVAS SOUFFLERIE & TÉLÉMÉTRIE KPIS
+         ========================================================================== -->
+    <div class="xl:col-span-6 flex flex-col space-y-4">
+      
+      <!-- Soufflerie Canvas 2D -->
+      <section class="cockpit-panel rounded-xl p-3 border border-[#1f293d] flex-1 flex flex-col">
+        <div class="flex items-center justify-between mb-2 px-1">
+          <div class="flex items-center space-x-2">
+            <div class="w-2.5 h-2.5 rounded-full bg-cyan-400 live-indicator"></div>
+            <h2 class="text-sm font-bold font-display uppercase tracking-wider text-gray-200">
+              Soufflerie Virtuelle 2D
+            </h2>
+            <span class="text-xs text-gray-400 font-mono hidden sm:inline">• Écoulement subsonique</span>
+          </div>
+
+          <div class="flex items-center space-x-2 text-[11px] font-mono text-gray-400">
+            <span class="hidden md:inline">Échelle : <span id="scaleIndicator" class="text-gray-200 font-semibold">100 px ≈ 0.25 m</span></span>
+            
+            <!-- Groupe Contrôles de Zoom & Cadrage -->
+            <div class="flex items-center bg-[#0d1424] border border-[#1f293d] rounded-lg p-0.5 space-x-1">
+              <button id="btnZoomIn" title="Zoom avant (+)" class="w-6 h-6 rounded flex items-center justify-center bg-[#141d30] hover:bg-cyan-600 hover:text-white text-cyan-400 font-bold text-sm transition-colors cursor-pointer">+</button>
+              <button id="btnZoomOut" title="Zoom arrière (-)" class="w-6 h-6 rounded flex items-center justify-center bg-[#141d30] hover:bg-cyan-600 hover:text-white text-cyan-400 font-bold text-sm transition-colors cursor-pointer">−</button>
+              <button id="btnFitView" title="Ajuster et cadrer au centre" class="px-2 h-6 rounded flex items-center justify-center bg-[#141d30] hover:bg-cyan-600 hover:text-white text-cyan-300 font-semibold text-[10px] uppercase transition-colors cursor-pointer space-x-1">
+                <span>🎯 Cadrer</span>
+              </button>
+              <button id="btnResetView" title="Réinitialiser la vue" class="px-2 h-6 rounded flex items-center justify-center bg-[#141d30] hover:bg-gray-700 text-gray-300 hover:text-white text-[10px] transition-colors cursor-pointer">
+                <span>↺</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Canvas Wrapper -->
+        <div class="canvas-wrapper rounded-lg flex-1 min-h-[380px] sm:min-h-[440px] relative">
+          <canvas id="windTunnelCanvas" class="w-full h-full block cursor-grab active:cursor-grabbing"></canvas>
+          
+          <!-- Overlay Télémétrie en direct dans le Canvas -->
+          <div class="absolute top-3 left-3 bg-[#0b0f19]/80 backdrop-blur border border-[#1f293d] rounded-lg px-2.5 py-1.5 text-[11px] font-mono space-y-0.5 pointer-events-none">
+            <div class="text-gray-300">Pression dyn. $q_\infty$ : <span id="overlayQdyn" class="text-cyan-400 font-bold">2362 Pa</span></div>
+            <div class="text-gray-300">Vitesse max intrados : <span id="overlayVmax" class="text-emerald-400 font-bold">245 km/h</span></div>
+          </div>
+
+          <!-- Légende en bas à droite -->
+          <div class="absolute bottom-3 right-3 bg-[#0b0f19]/85 backdrop-blur border border-[#1f293d] rounded-lg px-2.5 py-1.5 text-[10px] font-mono space-y-1 pointer-events-none">
+            <div class="flex items-center space-x-1.5">
+              <span class="w-3 h-1 bg-red-500 inline-block rounded"></span>
+              <span class="text-gray-300">Surpression ($\vec{dF}_i$)</span>
+            </div>
+            <div class="flex items-center space-x-1.5">
+              <span class="w-3 h-1 bg-cyan-400 inline-block rounded"></span>
+              <span class="text-gray-300">Dépression / Succion ($\vec{dF}_i$)</span>
+            </div>
+            <div class="flex items-center space-x-1.5">
+              <span class="w-3 h-1 bg-emerald-400 inline-block rounded"></span>
+              <span class="text-gray-300">Résultante Globale ($\vec{F}_{\text{appui}}, \vec{F}_x$)</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Cartes Télémétrie (5 Métriques Clés d'Hypercar) -->
+      <section class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+        
+        <!-- KPI 1 : Appui Aérodynamique -->
+        <div class="cockpit-card rounded-xl p-3 border-l-4 border-l-cyan-500">
+          <div class="text-[11px] uppercase font-bold text-gray-400 tracking-wider">Appui Aéro ($F_z$)</div>
+          <div class="mt-1 flex items-baseline space-x-1">
+            <span id="kpiDownforceKg" class="text-2xl font-black font-mono text-cyan-400">142.5</span>
+            <span class="text-xs font-mono text-gray-400 font-bold">kg</span>
+          </div>
+          <div class="text-[11px] font-mono text-gray-400 mt-0.5">
+            <span id="kpiDownforceN">1398</span> N plaqués
+          </div>
+        </div>
+
+        <!-- KPI 2 : Traînée & Puissance Ch -->
+        <div class="cockpit-card rounded-xl p-3 border-l-4 border-l-red-500">
+          <div class="text-[11px] uppercase font-bold text-gray-400 tracking-wider">Traînée ($F_x$) & Puiss.</div>
+          <div class="mt-1 flex items-baseline space-x-1">
+            <span id="kpiDragN" class="text-2xl font-black font-mono text-red-400">385</span>
+            <span class="text-xs font-mono text-gray-400 font-bold">N</span>
+          </div>
+          <div class="text-[11px] font-mono text-red-300/90 mt-0.5 flex items-center space-x-1">
+            <span>Puissance :</span>
+            <span id="kpiPowerHp" class="font-bold text-yellow-400">29.1</span> ch
+          </div>
+        </div>
+
+        <!-- KPI 3 : Cz -->
+        <div class="cockpit-card rounded-xl p-3 border-l-4 border-l-cyan-400">
+          <div class="text-[11px] uppercase font-bold text-gray-400 tracking-wider">Coeff. Appui ($C_z$)</div>
+          <div class="mt-1 flex items-baseline space-x-1">
+            <span id="kpiCz" class="text-2xl font-black font-mono text-gray-100">0.938</span>
+          </div>
+          <div class="text-[10px] text-gray-400 mt-0.5">
+            $C_z = \frac{F_z}{q \cdot S}$
+          </div>
+        </div>
+
+        <!-- KPI 4 : Cx -->
+        <div class="cockpit-card rounded-xl p-3 border-l-4 border-l-orange-500">
+          <div class="text-[11px] uppercase font-bold text-gray-400 tracking-wider">Coeff. Traînée ($C_x$)</div>
+          <div class="mt-1 flex items-baseline space-x-1">
+            <span id="kpiCx" class="text-2xl font-black font-mono text-gray-100">0.258</span>
+          </div>
+          <div class="text-[10px] text-gray-400 mt-0.5">
+            $C_x = \frac{F_x}{q \cdot S}$
+          </div>
+        </div>
+
+        <!-- KPI 5 : Finesse Aérodynamique -->
+        <div class="cockpit-card rounded-xl p-3 border-l-4 border-l-emerald-500 col-span-2 sm:col-span-1">
+          <div class="text-[11px] uppercase font-bold text-gray-400 tracking-wider">Finesse ($C_z/C_x$)</div>
+          <div class="mt-1 flex items-baseline space-x-1">
+            <span id="kpiEfficiency" class="text-2xl font-black font-mono text-emerald-400">3.64</span>
+          </div>
+          <div id="stallWarningBadge" class="text-[10px] font-mono text-emerald-400 mt-0.5 flex items-center space-x-1">
+            <span>Flux attaché</span>
+          </div>
+        </div>
+
+      </section>
+
+    </div>
+
+    <!-- ==========================================================================
+         COLONNE DROITE (XL: 3 COLONNES) : LABORATOIRE MATH & TUTEUR IA GEMINI
+         ========================================================================== -->
+    <aside class="xl:col-span-3 flex flex-col space-y-4">
+      
+      <section class="cockpit-panel rounded-xl p-4 border border-[#1f293d] flex-1 flex flex-col min-h-[500px]">
+        
+        <!-- Onglets du Panneau Droit -->
+        <div class="flex items-center justify-between border-b border-[#1f293d] pb-2 mb-3">
+          <div class="flex space-x-2">
+            <button id="tabRightMath" class="px-3 py-1.5 rounded-lg text-xs font-bold font-display uppercase tracking-wider bg-[#1f293d] text-cyan-400 border border-cyan-800/60 transition-colors">
+              📐 Formules en Direct
+            </button>
+            <button id="tabRightAi" class="px-3 py-1.5 rounded-lg text-xs font-bold font-display uppercase tracking-wider text-gray-400 hover:text-gray-200 transition-colors">
+              🤖 Tuteur IA Gemini
+            </button>
+          </div>
+
+          <div id="aiModelIndicator" class="text-[10px] font-mono text-cyan-400/90 bg-cyan-950/40 px-2 py-0.5 rounded border border-cyan-800/40 hidden">
+            gemini-3.8-flash
+          </div>
+        </div>
+
+        <!-- CONTENU ONGLET 1 : DÉMONSTRATION MATHÉMATIQUE EN DIRECT (KaTeX) -->
+        <div id="panelMathView" class="space-y-4 overflow-y-auto max-h-[680px] pr-1">
+          
+          <div class="bg-[#0b101d] rounded-lg p-3 border border-[#1a233a] space-y-1.5">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-cyan-400 font-display uppercase tracking-wide">1. Nombre Dérivé & Tangente</span>
+              <span class="text-[10px] font-mono text-gray-400">Spé Maths</span>
+            </div>
+            <p class="text-xs text-gray-300">Taux d'accroissement sur le panneau discret $i$ :</p>
+            <div id="mathStep1Theory" class="text-xs text-gray-200 font-mono py-1"></div>
+            <div id="mathStep1Numeric" class="text-xs text-cyan-300/90 bg-[#080d18] p-2 rounded border border-[#162035] overflow-x-auto"></div>
+          </div>
+
+          <div class="bg-[#0b101d] rounded-lg p-3 border border-[#1a233a] space-y-1.5">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-cyan-400 font-display uppercase tracking-wide">2. Pression Dynamique & Bernoulli</span>
+              <span class="text-[10px] font-mono text-gray-400">Fonction Carré</span>
+            </div>
+            <p class="text-xs text-gray-300">Énergie cinétique de l'air incident :</p>
+            <div id="mathStep2Theory" class="text-xs text-gray-200 font-mono py-1"></div>
+            <div id="mathStep2Numeric" class="text-xs text-emerald-300/90 bg-[#080d18] p-2 rounded border border-[#162035] overflow-x-auto"></div>
+          </div>
+
+          <div class="bg-[#0b101d] rounded-lg p-3 border border-[#1a233a] space-y-1.5">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-cyan-400 font-display uppercase tracking-wide">3. Calcul Intégral (Riemann)</span>
+              <span class="text-[10px] font-mono text-gray-400">Intégrale sur $[0, L]$</span>
+            </div>
+            <p class="text-xs text-gray-300">Sommation des forces élémentaires $\vec{dF}_i$ :</p>
+            <div id="mathStep3Theory" class="text-xs text-gray-200 font-mono py-1"></div>
+            <div id="mathStep3Numeric" class="text-xs text-yellow-300/90 bg-[#080d18] p-2 rounded border border-[#162035] overflow-x-auto"></div>
+          </div>
+
+          <div class="bg-[#0b101d] rounded-lg p-3 border border-[#1a233a] space-y-1.5">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-cyan-400 font-display uppercase tracking-wide">4. Puissance Absorbée en Ch</span>
+              <span class="text-[10px] font-mono text-gray-400">Travail & Vitesse</span>
+            </div>
+            <div id="mathStep4Theory" class="text-xs text-gray-200 font-mono py-1"></div>
+            <div id="mathStep4Numeric" class="text-xs text-red-300/90 bg-[#080d18] p-2 rounded border border-[#162035] overflow-x-auto"></div>
+          </div>
+
+        </div>
+
+        <!-- CONTENU ONGLET 2 : ANALYSE & EXPLICATION DU TUTEUR IA GEMINI -->
+        <div id="panelAiView" class="hidden flex-1 flex flex-col space-y-3 overflow-y-auto max-h-[680px] pr-1">
+          
+          <!-- État de chargement IA -->
+          <div id="aiLoadingState" class="hidden py-8 flex flex-col items-center justify-center space-y-3">
+            <div class="w-8 h-8 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin"></div>
+            <p class="text-xs text-gray-300 font-mono text-center">
+              Analyse télémétrique par l'ingénieur de piste (Gemini)...
+            </p>
+          </div>
+
+          <!-- Conteneur d'affichage Markdown / LaTeX -->
+          <div id="aiContentContainer" class="prose-aero text-xs leading-relaxed">
+            <div class="bg-[#0b101d] rounded-lg p-4 border border-[#1a233a] text-center space-y-3">
+              <div class="text-2xl">🏎️💨</div>
+              <h3 class="text-sm font-bold text-gray-200">Prêt pour le Débriefing d'Ingénierie</h3>
+              <p class="text-xs text-gray-400">
+                Cliquez sur le bouton ci-dessous pour déclencher l'analyse pédagogique par le modèle <strong>Gemini 3.8 Flash</strong>.
+              </p>
+              <button id="btnTriggerAiInner" class="px-4 py-2 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-bold font-display uppercase tracking-wider transition-colors shadow">
+                Lancer le Débriefing
+              </button>
+            </div>
+          </div>
+
+        </div>
+
+      </section>
+
+    </aside>
+
+  </main>
+
+  <!-- ==============================================================================
+       MODALE PÉDAGOGIQUE POUR LES PALIERS 2 ET 3 (PHASE 2)
+       ============================================================================== -->
+  <div id="tierModal" class="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="cockpit-panel max-w-xl w-full rounded-2xl p-6 border border-[#2a3854] shadow-2xl relative">
+      <button id="btnCloseModal" class="absolute top-4 right-4 text-gray-400 hover:text-white text-lg font-mono">✕</button>
+      
+      <div class="flex items-center space-x-3 mb-4">
+        <div id="modalIconContainer" class="w-10 h-10 rounded-xl bg-purple-900/40 border border-purple-500/40 flex items-center justify-center text-purple-400 font-bold text-lg">
+          $Z$
+        </div>
+        <div>
+          <h3 id="modalTitle" class="text-lg font-bold font-display text-white">Palier 2 : Maths Expertes</h3>
+          <span class="text-xs font-mono text-cyan-400">Phase 2 en développement</span>
+        </div>
+      </div>
+
+      <div id="modalBody" class="text-xs text-gray-300 space-y-3 leading-relaxed">
+        <!-- Rempli dynamiquement -->
+      </div>
+
+      <div class="mt-6 pt-4 border-t border-[#1f293d] flex justify-end">
+        <button id="btnConfirmModal" class="px-4 py-2 rounded-lg bg-[#1f293d] hover:bg-[#2b3954] text-cyan-400 text-xs font-bold font-mono transition-colors">
+          Compris, revenir au Palier 1
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Script Frontend Principal -->
+  <script src="/static/app.js"></script>
+</body>
+</html>

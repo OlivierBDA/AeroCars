@@ -1,0 +1,17 @@
+# Fichiers sensibles et clés d'API
+.env
+
+# Environnement virtuel Python
+.venv/
+venv/
+ENV/
+
+# Caches Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Logs et temporaires
+*.log
+.DS_Store
+Thumbs.db

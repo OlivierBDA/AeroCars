@@ -1,0 +1,200 @@
+/* ==============================================================================
+   style.css - AeroCars Cockpit Télémétrie & Soufflerie Aérodynamique (v1.0)
+   ============================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
+:root {
+  --bg-main: #0b0f19;
+  --bg-panel: #111827;
+  --bg-panel-alt: #161f33;
+  --bg-card: #141c2e;
+  --border-subtle: #1f293d;
+  --border-focus: #374151;
+  --racing-red: #ef4444;
+  --racing-red-glow: rgba(239, 68, 68, 0.25);
+  --aero-cyan: #06b6d4;
+  --aero-cyan-glow: rgba(6, 182, 212, 0.25);
+  --perf-green: #10b981;
+  --perf-amber: #f59e0b;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background-color: var(--bg-main);
+  color: #f3f4f6;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  letter-spacing: -0.01em;
+}
+
+/* Typographie spécifique */
+.font-display {
+  font-family: 'Chakra Petch', 'Inter', sans-serif;
+  letter-spacing: 0.03em;
+}
+
+.font-mono, code, kbd, samp {
+  font-family: 'JetBrains Mono', monospace;
+  font-feature-settings: "tnum" 1, "zero" 1;
+}
+
+/* Glassmorphism subtil & panneaux */
+.cockpit-panel {
+  background: rgba(17, 24, 39, 0.88);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--border-subtle);
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.45);
+}
+
+.cockpit-card {
+  background: linear-gradient(135deg, rgba(20, 28, 46, 0.95) 0%, rgba(15, 23, 42, 0.85) 100%);
+  border: 1px solid var(--border-subtle);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.cockpit-card:hover {
+  border-color: rgba(6, 182, 212, 0.4);
+  box-shadow: 0 4px 16px -2px rgba(6, 182, 212, 0.15);
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #0b0f19;
+}
+::-webkit-scrollbar-thumb {
+  background: #1f293d;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #374151;
+}
+
+/* Select & Options styling */
+select {
+  background-color: #0d1424 !important;
+  color: #f3f4f6 !important;
+}
+
+select option {
+  background-color: #111827 !important;
+  color: #f3f4f6 !important;
+  padding: 8px !important;
+}
+
+/* Sliders de télémétrie personnalisés */
+input[type="range"] {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 6px;
+  border-radius: 3px;
+  background: #1f293d;
+  outline: none;
+  transition: background 0.2s;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #06b6d4;
+  cursor: pointer;
+  box-shadow: 0 0 10px rgba(6, 182, 212, 0.6);
+  border: 2px solid #ffffff;
+  transition: transform 0.1s, box-shadow 0.2s;
+}
+
+input[type="range"]::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+  box-shadow: 0 0 14px rgba(6, 182, 212, 0.9);
+}
+
+input[type="range"].accent-red::-webkit-slider-thumb {
+  background: #ef4444;
+  box-shadow: 0 0 10px rgba(239, 68, 68, 0.6);
+}
+
+/* Canvas Container */
+.canvas-wrapper {
+  position: relative;
+  background: radial-gradient(circle at 50% 50%, #111a2e 0%, #080c14 100%);
+  border: 1px solid var(--border-subtle);
+  overflow: hidden;
+}
+
+/* KaTeX custom tweaks in dark mode */
+.katex {
+  font-size: 1.05em !important;
+  color: #e2e8f0;
+}
+.katex-display {
+  margin: 0.6em 0 !important;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 0.25rem 0;
+}
+
+/* Effets lumineux & animations */
+@keyframes pulse-subtle {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+.live-indicator {
+  animation: pulse-subtle 2s infinite ease-in-out;
+}
+
+/* Badge de palier */
+.tier-tab {
+  transition: all 0.2s ease;
+}
+.tier-tab.active {
+  background: #1f293d;
+  border-color: #06b6d4;
+  color: #38bdf8;
+}
+
+/* Contenu Markdown IA formaté */
+.prose-aero h1, .prose-aero h2, .prose-aero h3 {
+  color: #f8fafc;
+  font-family: 'Chakra Petch', sans-serif;
+  margin-top: 1.25rem;
+  margin-bottom: 0.5rem;
+  font-weight: 700;
+}
+.prose-aero h3 {
+  font-size: 1.08rem;
+  border-left: 3px solid #06b6d4;
+  padding-left: 0.5rem;
+}
+.prose-aero p {
+  line-height: 1.65;
+  margin-bottom: 0.85rem;
+  color: #cbd5e1;
+}
+.prose-aero ul {
+  list-style-type: disc;
+  padding-left: 1.25rem;
+  margin-bottom: 0.85rem;
+  color: #cbd5e1;
+}
+.prose-aero li {
+  margin-bottom: 0.35rem;
+}
+.prose-aero strong {
+  color: #f1f5f9;
+}
+.prose-aero blockquote {
+  border-left: 3px solid #ef4444;
+  background: rgba(239, 68, 68, 0.08);
+  padding: 0.5rem 0.75rem;
+  border-radius: 0 4px 4px 0;
+  margin-bottom: 0.85rem;
+}
